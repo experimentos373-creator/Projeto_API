@@ -1,0 +1,4 @@
+.agent/
+.zencoder/
+.zenflow/
+*.log
