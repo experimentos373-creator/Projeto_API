@@ -1,0 +1,12 @@
+/*
+!/projeto-20260512T121729Z-3-001/
+!/relatorio_geral.pdf
+!/.gitignore
+projeto-20260512T121729Z-3-001/git_backup/
+**/node_modules/
+**/vendor/
+**/.env
+**/storage/framework/views/*.php
+**/storage/logs/*.log
+**/.phpunit.cache/
+**/public/storage
