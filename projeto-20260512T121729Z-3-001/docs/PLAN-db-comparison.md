@@ -21,6 +21,44 @@ BACKEND (Database Analysis)
 - `projeto-20260512T121729Z-3-001/projeto/database/database.sqlite` (Local)
 - `d:/database_folder/database/database.sqlite` (Externa)
 
+## Relatório de Diferenças Encontradas
+
+### Resumo de Ficheiros
+| Métrica | Base Local (DB A) | Base Externa (DB B) | Diferença / Estado |
+| :--- | :--- | :--- | :--- |
+| **Caminho** | `e:\Aplicacoes_internet\...\database.sqlite` | `d:\database_folder\database\database.sqlite` | Locais físicos distintos |
+| **Tamanho do Ficheiro** | **~12.3 MB** (12,308,480 bytes) | **~2.0 MB** (2,019,328 bytes) | A local é consideravelmente maior |
+| **Total de Tabelas** | **19** | **16** | 3 tabelas a menos na externa |
+| **Total de Índices** | **13** | **7** | 6 índices a menos na externa |
+| **Migrações Executadas**| **6** | **4** | 2 migrações a menos na externa |
+
+### Tabelas Exclusivas da Base Local (DB A)
+As seguintes 3 tabelas existem apenas na base de dados Local e pertencem ao **Laravel Telescope** (depuração local):
+- `telescope_entries`
+- `telescope_entries_tags`
+- `telescope_monitoring`
+
+### Diferenças de Esquema de Tabelas (Colunas)
+Na tabela `users`, a base local (DB A) possui as seguintes 3 colunas extras geradas pelo **Laravel Fortify** (2FA):
+- `two_factor_confirmed_at`
+- `two_factor_recovery_codes`
+- `two_factor_secret`
+
+### Diferenças de Dados (Volumetria)
+A base Local possui dados adicionais devido a testes locais e automatizados:
+
+| Nome da Tabela | Registros na Local (DB A) | Registros na Externa (DB B) | Diferença (Local - Externa) |
+| :--- | :---: | :---: | :---: |
+| `orders` | 5568 | 5101 | +467 |
+| `order_items` | 15916 | 14606 | +1310 |
+| `customers` | 501 | 500 | +1 |
+| `tshirt_images` | 327 | 326 | +1 |
+| `categories` | 22 | 21 | +1 |
+| `colors` | 27 | 26 | +1 |
+| `sessions` | 19 | 0 | +19 |
+| `cache` | 4 | 0 | +4 |
+| `jobs` | 4 | 0 | +4 |
+
 ## Task Breakdown
 
 ### Task 1: Mapear Caminhos e Verificar Tamanhos
