@@ -159,20 +159,20 @@ Efetuámos uma análise à estrutura de ficheiros e código existente na pasta [
 
 ---
 
-### 🟡 Grupo 6: Recibos e E-mail (Peso: 5%)
+### 🟢 Grupo 6: Recibos e E-mail (Peso: 5%) [CONCLUÍDO ✅ — 7/7 testes validados]
 
-- [ ] **Geração de Recibos em PDF:**
-  - [ ] Instalar um pacote gerador de PDF (recomendado: `barryvdh/laravel-dompdf`).
-  - [ ] Implementar a geração automática do PDF aquando da transição para o estado `closed`.
-  - [ ] Guardar o PDF em `storage/app/private/pdf_receipts/`.
-  - [ ] O PDF deve conter: Logótipo da FunShirt, dados do cliente (NIF, nome), data da encomenda, lista detalhada de itens com valores e total final.
-  - [ ] Proteger o download do PDF: apenas o cliente proprietário e administradores podem descarregar.
-- [ ] **Notificações por E-mail (Mailtrap.io):**
-  - [ ] Criar classes de email (`Mailable`):
-    - [ ] `OrderPendingMail`: Enviado ao cliente quando a encomenda é criada.
-    - [ ] `OrderCanceledMail`: Enviado ao cliente quando a encomenda é cancelada.
-    - [ ] `OrderClosedMail`: Enviado ao cliente quando a encomenda é enviada, com o recibo PDF anexado.
-  - [ ] Configurar filas de processamento (`Queues` com base de dados ou sync) para enviar os e-mails sem atrasar a resposta web.
+- [x] **Geração de Recibos em PDF:**
+  - [x] Instalar um pacote gerador de PDF (recomendado: `barryvdh/laravel-dompdf`).
+  - [x] Implementar a geração automática do PDF aquando da transição para o estado `closed`.
+  - [x] Guardar o PDF em `storage/app/private/pdf_receipts/`.
+  - [x] O PDF deve conter: Logótipo da FunShirt, dados do cliente (NIF, nome), data da encomenda, lista detalhada de itens com valores e total final.
+  - [x] Proteger o download do PDF: apenas o cliente proprietário e administradores podem descarregar.
+- [x] **Notificações por E-mail (Mailtrap.io):**
+  - [x] Criar classes de email (`Mailable`):
+    - [x] `OrderPendingMail`: Enviado ao cliente quando a encomenda é criada.
+    - [x] `OrderCanceledMail`: Enviado ao cliente quando a encomenda é cancelada.
+    - [x] `OrderClosedMail`: Enviado ao cliente quando a encomenda é enviada, com o recibo PDF anexado.
+  - [x] Configurar filas de processamento (`Queues` com base de dados ou sync) para enviar os e-mails sem atrasar a resposta web.
 
 ---
 

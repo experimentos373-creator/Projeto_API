@@ -10,6 +10,7 @@ Utilizadores seed disponíveis:
 
 Uso: python tests_g1_browser.py
 """
+import os
 import sys
 import time
 import random
