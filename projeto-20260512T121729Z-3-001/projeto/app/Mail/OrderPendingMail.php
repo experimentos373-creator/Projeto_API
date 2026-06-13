@@ -4,11 +4,10 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderPendingMail extends Mailable implements ShouldQueue
+class OrderPendingMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,6 +27,6 @@ class OrderPendingMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject("Encomenda Registada — FunShirt #{$this->order->id}")
-                    ->view('emails.order_pending');
+            ->view('emails.order_pending');
     }
 }

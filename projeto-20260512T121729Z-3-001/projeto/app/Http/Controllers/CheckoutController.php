@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Tshirt_image;
-use App\Models\Price;
+use App\Mail\OrderPendingMail;
 use App\Models\Order;
 use App\Models\Order_item;
+use App\Models\Price;
+use App\Models\Tshirt_image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 
 class CheckoutController extends Controller
@@ -19,11 +20,15 @@ class CheckoutController extends Controller
      */
     public function index()
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login', ['redirect' => 'checkout']);
         }
 
-        if (!Auth::user()->hasVerifiedEmail()) {
+        if (Auth::user()->user_type !== 'C') {
+            abort(403, 'Acesso negado. Esta área é exclusiva para clientes.');
+        }
+
+        if (! Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
 
@@ -48,7 +53,7 @@ class CheckoutController extends Controller
         }
 
         $priceConfig = Price::first();
-        if (!$priceConfig) {
+        if (! $priceConfig) {
             return redirect()->route('cart.index')->with('error', 'Configurações de preços não encontradas.');
         }
 
@@ -56,20 +61,22 @@ class CheckoutController extends Controller
         $total = 0;
         $itemsCount = 0;
         $items = [];
+        $tshirtImageIds = collect($cart)->pluck('tshirt_image_id')->unique()->toArray();
+        $tshirtImages = Tshirt_image::findMany($tshirtImageIds)->keyBy('id');
         foreach ($cart as $key => $details) {
-            $tshirtImage = Tshirt_image::find($details['tshirt_image_id']);
-            if (!$tshirtImage) {
+            $tshirtImage = $tshirtImages->get($details['tshirt_image_id']);
+            if (! $tshirtImage) {
                 continue;
             }
-            $qty = (int)$details['quantity'];
-            $isOwn = !is_null($tshirtImage->customer_id);
+            $qty = (int) $details['quantity'];
+            $isOwn = ! is_null($tshirtImage->customer_id);
             $basePrice = $isOwn ? $priceConfig->unit_price_own : $priceConfig->unit_price_catalog;
             $discountPrice = $isOwn ? $priceConfig->unit_price_own_discount : $priceConfig->unit_price_catalog_discount;
-            
+
             $isDiscounted = ($qty >= $priceConfig->qty_discount);
             $unitPrice = $isDiscounted ? $discountPrice : $basePrice;
             $subtotal = $unitPrice * $qty;
-            
+
             $total += $subtotal;
             $itemsCount += $qty;
             $items[] = [
@@ -88,11 +95,15 @@ class CheckoutController extends Controller
      */
     public function store(Request $request)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login', ['redirect' => 'checkout']);
         }
 
-        if (!Auth::user()->hasVerifiedEmail()) {
+        if (Auth::user()->user_type !== 'C') {
+            abort(403, 'Acesso negado. Esta área é exclusiva para clientes.');
+        }
+
+        if (! Auth::user()->hasVerifiedEmail()) {
             return redirect()->route('verification.notice');
         }
 
@@ -123,41 +134,43 @@ class CheckoutController extends Controller
 
         // Custom validation of payment references
         if ($paymentType === 'Visa') {
-            if (!preg_match('/^4[0-9]{15}$/', $paymentRef)) {
+            if (! preg_match('/^4[0-9]{15}$/', $paymentRef)) {
                 return back()->withInput()->withErrors(['payment_ref' => 'A referência para Visa deve ter 16 dígitos e iniciar por 4.']);
             }
         } elseif ($paymentType === 'PayPal') {
-            if (!filter_var($paymentRef, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($paymentRef, FILTER_VALIDATE_EMAIL)) {
                 return back()->withInput()->withErrors(['payment_ref' => 'A referência para PayPal deve ser um e-mail válido.']);
             }
         } elseif ($paymentType === 'MB WAY') {
-            if (!preg_match('/^9[0-9]{8}$/', $paymentRef)) {
+            if (! preg_match('/^9[0-9]{8}$/', $paymentRef)) {
                 return back()->withInput()->withErrors(['payment_ref' => 'A referência para MB WAY deve ter 9 dígitos e iniciar por 9.']);
             }
         }
 
         $priceConfig = Price::first();
-        if (!$priceConfig) {
+        if (! $priceConfig) {
             return back()->withInput()->withErrors(['payment' => 'Configurações de preços não encontradas.']);
         }
 
         // Calculate final total and verify prices
         $totalPrice = 0;
         $orderItemsData = [];
+        $tshirtImageIds = collect($cart)->pluck('tshirt_image_id')->unique()->toArray();
+        $tshirtImages = Tshirt_image::findMany($tshirtImageIds)->keyBy('id');
 
         foreach ($cart as $key => $details) {
-            $tshirtImage = Tshirt_image::find($details['tshirt_image_id']);
-            if (!$tshirtImage) {
+            $tshirtImage = $tshirtImages->get($details['tshirt_image_id']);
+            if (! $tshirtImage) {
                 continue;
             }
-            $qty = (int)$details['quantity'];
+            $qty = (int) $details['quantity'];
             $colorCode = $details['color_code'];
             $size = $details['size'];
 
-            $isOwn = !is_null($tshirtImage->customer_id);
+            $isOwn = ! is_null($tshirtImage->customer_id);
             $basePrice = $isOwn ? $priceConfig->unit_price_own : $priceConfig->unit_price_catalog;
             $discountPrice = $isOwn ? $priceConfig->unit_price_own_discount : $priceConfig->unit_price_catalog_discount;
-            
+
             $isDiscounted = ($qty >= $priceConfig->qty_discount);
             $unitPrice = $isDiscounted ? $discountPrice : $basePrice;
             $subtotal = $unitPrice * $qty;
@@ -187,11 +200,12 @@ class CheckoutController extends Controller
             $response = Http::post('https://ainet-payments-api.vercel.app/api/payments', [
                 'type' => $paymentType,
                 'reference' => $paymentRef,
-                'value' => $roundedTotal
+                'value' => $roundedTotal,
             ]);
 
             if ($response->failed()) {
                 $errorMsg = $response->json('message') ?? 'O pagamento foi recusado. Verifique os dados ou o saldo da conta.';
+
                 return back()->withInput()->withErrors(['payment' => $errorMsg]);
             }
         } catch (\Exception $e) {
@@ -200,7 +214,7 @@ class CheckoutController extends Controller
 
         // Create database records within transaction
         try {
-            $order = DB::transaction(function() use ($roundedTotal, $request, $orderItemsData) {
+            $order = DB::transaction(function () use ($roundedTotal, $request, $orderItemsData) {
                 $order = Order::create([
                     'status' => 'pending',
                     'customer_id' => Auth::id(),
@@ -226,18 +240,17 @@ class CheckoutController extends Controller
 
             // Send pending e-mail (Integration with G6)
             try {
-                if (class_exists(\App\Mail\OrderPendingMail::class)) {
-                    Mail::to($request->user())->send(new \App\Mail\OrderPendingMail($order));
+                if (class_exists(OrderPendingMail::class)) {
+                    Mail::to($request->user())->send(new OrderPendingMail($order));
                 }
             } catch (\Exception $e) {
-                logger()->error('Falha ao enviar e-mail de encomenda pendente: ' . $e->getMessage());
+                logger()->error('Falha ao enviar e-mail de encomenda pendente: '.$e->getMessage());
             }
 
             return redirect()->route('orders.show', $order)->with('success', 'Encomenda efetuada com sucesso! O pagamento foi processado.');
 
         } catch (\Exception $e) {
-            return back()->withInput()->withErrors(['payment' => 'Erro ao registar a encomenda na base de dados: ' . $e->getMessage()]);
+            return back()->withInput()->withErrors(['payment' => 'Erro ao registar a encomenda na base de dados: '.$e->getMessage()]);
         }
     }
 }
-

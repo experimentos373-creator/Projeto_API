@@ -8,7 +8,7 @@
     <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
         <!-- Header -->
         <div style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 2.5rem; text-align: center; border-bottom: 4px solid #ef4444;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em;">🎽 FunShirt</h1>
+            <h1 style="color: #ffffff; margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em;">FunShirt</h1>
             <p style="color: #fca5a5; margin: 0.5rem 0 0; font-size: 0.95rem; font-weight: 500;">A sua encomenda foi cancelada.</p>
         </div>
         

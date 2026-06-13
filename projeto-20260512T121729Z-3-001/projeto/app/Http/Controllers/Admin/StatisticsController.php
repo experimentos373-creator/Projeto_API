@@ -26,7 +26,7 @@ class StatisticsController extends Controller
         // 2. Determinar o ano selecionado (predefinido para o mais recente ou 'all')
         $selectedYear = $request->input('year');
         if ($selectedYear === null) {
-            $selectedYear = !empty($years) ? $years[0] : 'all';
+            $selectedYear = ! empty($years) ? $years[0] : 'all';
         }
 
         // 3. Query base para as encomendas fechadas ( closed )
@@ -38,7 +38,7 @@ class StatisticsController extends Controller
 
         // --- KPIs Globais ---
         $totalRevenue = (float) (clone $query)->sum('total_price');
-        $totalOrders  = (int) (clone $query)->count();
+        $totalOrders = (int) (clone $query)->count();
         $totalTshirts = (int) (clone $query)
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->sum('qty');
@@ -50,7 +50,7 @@ class StatisticsController extends Controller
         // --- Extremos de Negócio ---
         $maxPriceOrder = (clone $query)->orderByDesc('total_price')->first();
         $minPriceOrder = (clone $query)->orderBy('total_price')->first();
-        
+
         $maxQtyOrder = (clone $query)
             ->join('order_items', 'orders.id', '=', 'order_items.order_id')
             ->select('orders.*', DB::raw('SUM(order_items.qty) as total_qty'))
@@ -79,12 +79,12 @@ class StatisticsController extends Controller
             $monthStr = str_pad($m, 2, '0', STR_PAD_LEFT);
             $rev = $monthlyRevenue->get($monthStr);
             $qty = $monthlyQty->get($monthStr);
-            
+
             $monthlyData[] = [
-                'month'       => $monthStr,
-                'revenue'     => $rev ? (float) $rev->revenue : 0.0,
+                'month' => $monthStr,
+                'revenue' => $rev ? (float) $rev->revenue : 0.0,
                 'order_count' => $rev ? (int) $rev->order_count : 0,
-                'qty'         => $qty ? (int) $qty->qty : 0,
+                'qty' => $qty ? (int) $qty->qty : 0,
             ];
         }
 
@@ -96,27 +96,6 @@ class StatisticsController extends Controller
             ->selectRaw('COALESCE(categories.name, "Personalizadas") as category_name, SUM(order_items.sub_total) as revenue, SUM(order_items.qty) as qty')
             ->groupBy('category_name')
             ->orderByDesc('revenue')
-            ->get();
-
-        // --- Top 5 Estampas de Catálogo (Imagens Públicas) ---
-        $topDesigns = (clone $query)
-            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->join('tshirt_images', 'order_items.tshirt_image_id', '=', 'tshirt_images.id')
-            ->whereNull('tshirt_images.customer_id')
-            ->selectRaw('tshirt_images.name, SUM(order_items.sub_total) as revenue, SUM(order_items.qty) as qty')
-            ->groupBy('tshirt_images.id', 'tshirt_images.name')
-            ->orderByDesc('revenue')
-            ->limit(5)
-            ->get();
-
-        // --- Top 5 Cores ---
-        $topColors = (clone $query)
-            ->join('order_items', 'orders.id', '=', 'order_items.order_id')
-            ->join('colors', 'order_items.color_code', '=', 'colors.code')
-            ->selectRaw('colors.name, colors.code, SUM(order_items.qty) as qty, SUM(order_items.sub_total) as revenue')
-            ->groupBy('colors.code', 'colors.name')
-            ->orderByDesc('qty')
-            ->limit(5)
             ->get();
 
         // --- Top 5 Melhores Clientes ---
@@ -142,8 +121,6 @@ class StatisticsController extends Controller
             'maxQtyOrder',
             'monthlyData',
             'categorySales',
-            'topDesigns',
-            'topColors',
             'topCustomers'
         ));
     }

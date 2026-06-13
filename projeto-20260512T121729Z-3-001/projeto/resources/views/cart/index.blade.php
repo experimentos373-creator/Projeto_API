@@ -4,7 +4,7 @@
 <div class="container" style="padding-top: 2rem; padding-bottom: 4rem;">
 
     <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; flex: 1;">🛒 O Seu Carrinho</h1>
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin: 0; flex: 1;">O Seu Carrinho</h1>
         @if(count($items) > 0)
             <span style="color: #64748b; font-size: 0.95rem;">{{ count($items) }} {{ count($items) == 1 ? 'artigo' : 'artigos' }}</span>
         @endif
@@ -82,7 +82,7 @@
                                     <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
                                         <span style="text-decoration: line-through; color: #94a3b8; font-size: 0.9rem;">{{ number_format($item['base_price'], 2) }}€</span>
                                         <span style="font-size: 1.1rem; font-weight: 800; color: #16a34a;">{{ number_format($item['unit_price'], 2) }}€/un.</span>
-                                        <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 99px;">🏷️ Desconto Qty</span>
+                                        <span style="background: #dcfce7; color: #166534; font-size: 0.7rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 99px;">Desconto Qty</span>
                                     </div>
                                 @else
                                     <span style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">{{ number_format($item['unit_price'], 2) }}€/un.</span>
@@ -152,7 +152,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" style="background: none; border: none; color: #94a3b8; font-size: 0.875rem; cursor: pointer; text-decoration: underline;">
-                            🗑 Esvaziar carrinho
+                            Esvaziar carrinho
                         </button>
                     </form>
                 </div>
@@ -182,25 +182,25 @@
                         @if(Auth::user()->hasVerifiedEmail())
                             <a href="{{ route('checkout.index') }}" id="btn-checkout" class="btn btn-primary"
                                style="display: block; text-align: center; padding: 1rem; font-size: 1.1rem; border-radius: 12px;">
-                                💳 Finalizar Encomenda
+                                Finalizar Encomenda
                             </a>
                         @else
                             <div style="background: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 1rem; border-radius: 12px; text-align: center; font-size: 0.875rem;">
-                                ⚠️ Confirme o seu e-mail para finalizar a encomenda.
+                                Confirme o seu e-mail para finalizar a encomenda.
                                 <a href="{{ route('verification.notice') }}" style="display: block; margin-top: 0.5rem; font-weight: 700; color: #92400e;">Verificar E-mail</a>
                             </div>
                         @endif
                     @else
                         {{-- Admin ou Funcionário: sem acesso ao checkout --}}
                         <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 1rem; border-radius: 12px; text-align: center; font-size: 0.875rem;">
-                            ⚠️ Administradores e Funcionários não têm acesso ao checkout.
+                            Administradores e Funcionários não têm acesso ao checkout.
                         </div>
                     @endif
                 @else
                     {{-- Utilizador anónimo: redirecionar para login --}}
                     <a href="{{ route('login') }}?redirect=checkout" id="btn-checkout" class="btn btn-primary"
                        style="display: block; text-align: center; padding: 1rem; font-size: 1.1rem; border-radius: 12px;">
-                        🔐 Login para Finalizar
+                        Login para Finalizar
                     </a>
                     <p style="text-align: center; font-size: 0.8rem; color: #94a3b8; margin-top: 0.75rem;">O seu carrinho será preservado.</p>
                 @endauth
@@ -210,7 +210,7 @@
     @else
         {{-- Carrinho vazio --}}
         <div style="text-align: center; padding: 5rem 2rem; background: white; border-radius: var(--radius); border: 1px solid var(--border);">
-            <div style="font-size: 5rem; margin-bottom: 1.5rem;">🛒</div>
+            <div style="font-size: 5rem; margin-bottom: 1.5rem;"></div>
             <h2 style="font-weight: 800; margin-bottom: 1rem; font-size: 1.75rem;">O seu carrinho está vazio</h2>
             <p style="color: #64748b; margin-bottom: 2rem; font-size: 1rem;">Parece que ainda não escolheu nenhuma T-Shirt incrível!</p>
             <a href="{{ route('home') }}" class="btn btn-primary" style="padding: 0.875rem 2.5rem; font-size: 1.05rem;">

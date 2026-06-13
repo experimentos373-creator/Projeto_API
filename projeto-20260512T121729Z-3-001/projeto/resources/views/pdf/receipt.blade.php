@@ -112,7 +112,7 @@
     <table class="header-table">
         <tr>
             <td class="header-logo">
-                🎽 FunShirt
+                FunShirt
             </td>
             <td class="header-invoice">
                 RECIBO / FATURA<br>

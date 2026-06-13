@@ -1,13 +1,11 @@
 @extends('layouts.app')
 
 @php
-    // Task 1: Load default template from tshirt_images.custom
-    $customConfig = $tshirtImage->custom ? json_decode($tshirtImage->custom, true) : [];
-    $top = $customConfig['top'] ?? 47.5;
-    $left = $customConfig['left'] ?? 50.0;
-    $scale = $customConfig['scale'] ?? 45;
-    $rotate = $customConfig['rotate'] ?? 0;
-    $opacity = $customConfig['opacity'] ?? 1.0;
+    $top = 48.0;
+    $left = 50.0;
+    $scale = 40;
+    $rotate = 0;
+    $opacity = 1.0;
 @endphp
 
 @section('content')
@@ -20,32 +18,70 @@
     </a>
 
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;">
-        <!-- Imagem com Preview Dinâmico (CSS Overlay) -->
-        <div style="background: #f8fafc; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; user-select: none;">
-            {{-- Base: t-shirt com a cor, atualizada via JS --}}
-            <img id="preview-tshirt-base" 
-                 src="{{ $colors->first() ? $colors->first()->tshirt_base_url : asset('storage/tshirt_base/plain_white.png') }}"
-                 alt="T-shirt Base"
-                 style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: all 0.2s ease; user-select: none; -webkit-user-drag: none;">
+        <!-- Coluna Esquerda: Preview e Ajustes -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Imagem com Preview Dinâmico (CSS Overlay) -->
+            <div style="background: #f8fafc; border-radius: 24px; overflow: hidden; border: 1px solid var(--border); box-shadow: var(--shadow-md); position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; user-select: none;">
+                {{-- Base: t-shirt com a cor, atualizada via JS --}}
+                <img id="preview-tshirt-base" 
+                     src="{{ count($colors) > 0 ? $colors[0]->tshirt_base_url : asset('storage/tshirt_base/plain_white.png') }}"
+                     alt="T-shirt Base"
+                     style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: all 0.2s ease; user-select: none; -webkit-user-drag: none;">
 
-            {{-- Overlay: estampa arrastável e customizável --}}
-            @if($tshirtImage->image_url)
-                <img id="preview-stamp" 
-                     src="{{ asset('storage/tshirt_images/' . $tshirtImage->image_url) }}"
-                     alt="{{ $tshirtImage->name }}"
-                     style="position: absolute; 
-                            width: {{ $scale }}%; 
-                            height: {{ $scale }}%; 
-                            object-fit: contain; 
-                            top: {{ $top }}%; 
-                            left: {{ $left }}%; 
-                            transform: translate(-50%, -50%) rotate({{ $rotate }}deg); 
-                            opacity: {{ $opacity }}; 
-                            cursor: move; 
-                            user-select: none;
-                            -webkit-user-drag: none;
-                            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));">
-            @endif
+                {{-- Overlay: estampa arrastável e customizável --}}
+                @if($tshirtImage->image_url)
+                    <img id="preview-stamp" 
+                         src="{{ asset('storage/tshirt_images/' . $tshirtImage->image_url) }}"
+                         alt="{{ $tshirtImage->name }}"
+                         style="position: absolute; 
+                                width: {{ $scale }}%; 
+                                height: {{ $scale }}%; 
+                                object-fit: contain; 
+                                top: {{ $top }}%; 
+                                left: {{ $left }}%; 
+                                transform: translate(-50%, -50%) rotate({{ $rotate }}deg); 
+                                opacity: {{ $opacity }}; 
+                                cursor: move;
+                                user-select: none;
+                                -webkit-user-drag: none;
+                                filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));">
+                @endif
+            </div>
+
+            <!-- Controles de Customização da Estampa (G7) -->
+            <div style="background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border);">
+                <label style="display: block; font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem; color: var(--text);">Ajustar Posicao e Estilo</label>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: -0.75rem; margin-bottom: 1.25rem;">
+                    Arraste a estampa diretamente na T-shirt para reposicioná-la.
+                </p>
+                
+                {{-- Slider de Escala --}}
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
+                        <span>Tamanho (Escala)</span>
+                        <span id="val-scale" style="color: var(--primary);">{{ $scale }}%</span>
+                    </div>
+                    <input type="range" id="slider-scale" min="10" max="80" step="5" value="{{ $scale }}" style="width: 100%; accent-color: var(--primary);">
+                </div>
+
+                {{-- Slider de Rotação --}}
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
+                        <span>Rotação</span>
+                        <span id="val-rotate" style="color: var(--primary);">{{ $rotate }}°</span>
+                    </div>
+                    <input type="range" id="slider-rotate" min="0" max="360" step="5" value="{{ $rotate }}" style="width: 100%; accent-color: var(--primary);">
+                </div>
+
+                {{-- Slider de Opacidade --}}
+                <div style="margin-bottom: 0.25rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
+                        <span>Opacidade (Transparência)</span>
+                        <span id="val-opacity" style="color: var(--primary);">{{ round($opacity * 100) }}%</span>
+                    </div>
+                    <input type="range" id="slider-opacity" min="10" max="100" step="5" value="{{ round($opacity * 100) }}" style="width: 100%; accent-color: var(--primary);">
+                </div>
+            </div>
         </div>
 
         <!-- Detalhes -->
@@ -80,17 +116,20 @@
                 <input type="hidden" name="custom_opacity" id="custom_opacity" value="{{ $opacity }}">
 
                 <!-- Seleção de Cor -->
-                <div style="margin-bottom: 2rem;">
-                    <label style="display: block; font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text);">Escolha a Cor</label>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="margin-bottom: 2rem; background: #fafafa; padding: 1.25rem; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                        <label style="font-size: 1rem; font-weight: 800; color: var(--text); margin: 0;">Escolha a Cor</label>
+                        <span id="selected-color-name" style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">{{ count($colors) > 0 ? $colors[0]->name : '' }}</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(48px, 1fr)); gap: 0.75rem; min-height: 175px; max-height: 240px; overflow-y: auto; padding: 1rem; border-radius: 10px; border: 1px solid #e2e8f0; background: white;" class="custom-scrollbar">
                         @foreach($colors as $color)
-                            <label style="cursor: pointer; position: relative;">
+                            <label style="cursor: pointer; position: relative; display: flex; justify-content: center; align-items: center;" title="{{ $color->name }}">
                                 <input type="radio" name="color" value="{{ $color->code }}" 
+                                       data-name="{{ $color->name }}"
                                        data-base-url="{{ $color->tshirt_base_url }}" 
                                        {{ $loop->first ? 'checked' : '' }}
                                        style="position: absolute; opacity: 0; cursor: pointer;" required>
-                                <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #{{ $color->code }}; border: 3px solid white; box-shadow: 0 0 0 1px #e2e8f0; transition: all 0.2s;" class="color-swatch"></div>
-                                <span style="display: block; font-size: 0.75rem; text-align: center; margin-top: 0.25rem; color: #64748b;">{{ $color->name }}</span>
+                                <div style="width: 40px; height: 40px; border-radius: 50%; background-color: #{{ $color->code }}; border: 3px solid white; box-shadow: 0 0 0 1px #cbd5e1; transition: all 0.2s;" class="color-swatch"></div>
                             </label>
                         @endforeach
                     </div>
@@ -111,40 +150,7 @@
                     </div>
                 </div>
 
-                <!-- Controles de Customização da Estampa (G7 Avançado) -->
-                <div style="margin-bottom: 2.5rem; background: #f8fafc; padding: 1.5rem; border-radius: 16px; border: 1px solid var(--border);">
-                    <label style="display: block; font-size: 1.05rem; font-weight: 800; margin-bottom: 1rem; color: var(--text);">🎨 Ajustar Posição e Estilo</label>
-                    <p style="font-size: 0.8rem; color: #64748b; margin-top: -0.75rem; margin-bottom: 1.25rem;">
-                        Arraste a estampa diretamente na T-shirt para reposicioná-la.
-                    </p>
-                    
-                    {{-- Slider de Escala --}}
-                    <div style="margin-bottom: 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
-                            <span>Tamanho (Escala)</span>
-                            <span id="val-scale" style="color: var(--primary);">{{ $scale }}%</span>
-                        </div>
-                        <input type="range" id="slider-scale" min="10" max="80" value="{{ $scale }}" style="width: 100%; accent-color: var(--primary);">
-                    </div>
 
-                    {{-- Slider de Rotação --}}
-                    <div style="margin-bottom: 1.25rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
-                            <span>Rotação</span>
-                            <span id="val-rotate" style="color: var(--primary);">{{ $rotate }}°</span>
-                        </div>
-                        <input type="range" id="slider-rotate" min="0" max="360" value="{{ $rotate }}" style="width: 100%; accent-color: var(--primary);">
-                    </div>
-
-                    {{-- Slider de Opacidade --}}
-                    <div style="margin-bottom: 0.25rem;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">
-                            <span>Opacidade (Transparência)</span>
-                            <span id="val-opacity" style="color: var(--primary);">{{ round($opacity * 100) }}%</span>
-                        </div>
-                        <input type="range" id="slider-opacity" min="10" max="100" value="{{ round($opacity * 100) }}" style="width: 100%; accent-color: var(--primary);">
-                    </div>
-                </div>
 
                 <div style="display: flex; gap: 1rem;">
                     <div style="display: flex; align-items: center; background: #f1f5f9; border-radius: 16px; padding: 0.5rem 1rem;">
@@ -178,12 +184,27 @@
     .size-box:hover {
         border-color: var(--primary);
     }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
 </style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const previewBase = document.getElementById('preview-tshirt-base');
         const colorRadios = document.querySelectorAll('input[name="color"]');
+        const colorNameSpan = document.getElementById('selected-color-name');
 
         colorRadios.forEach(radio => {
             radio.addEventListener('change', function () {
@@ -191,6 +212,10 @@
                     const baseUrl = this.getAttribute('data-base-url');
                     if (previewBase && baseUrl) {
                         previewBase.src = baseUrl;
+                    }
+                    const name = this.getAttribute('data-name');
+                    if (colorNameSpan && name) {
+                        colorNameSpan.textContent = name;
                     }
                 }
             });
@@ -248,7 +273,7 @@
                 updateStampStyles();
             });
 
-            // Lógica de Drag & Drop (Mouse + Touch)
+            // Logica de Drag & Drop (Mouse + Touch)
             stamp.addEventListener('mousedown', startDrag);
             stamp.addEventListener('touchstart', startDrag, { passive: false });
 
@@ -264,7 +289,7 @@
                     let leftPercent = ((clientX - rect.left) / rect.width) * 100;
                     let topPercent = ((clientY - rect.top) / rect.height) * 100;
 
-                    // Limites de segurança
+                    // Limites de seguranca
                     leftPercent = Math.max(10, Math.min(leftPercent, 90));
                     topPercent = Math.max(10, Math.min(topPercent, 90));
 

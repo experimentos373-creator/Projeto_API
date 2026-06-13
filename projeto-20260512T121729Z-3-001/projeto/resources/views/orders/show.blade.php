@@ -21,15 +21,15 @@
         <div>
             @if($order->status === 'pending')
                 <span style="background: #fef3c7; color: #92400e; font-size: 1rem; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 99px; border: 1px solid #fcd34d;">
-                    ⏳ Aguarda Envio (Pendente)
+                    Aguarda Envio (Pendente)
                 </span>
             @elseif($order->status === 'closed')
                 <span style="background: #dcfce7; color: #166534; font-size: 1rem; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 99px; border: 1px solid #a7f3d0;">
-                    ✅ Enviada (Closed)
+                    Enviada (Closed)
                 </span>
             @else
                 <span style="background: #fef2f2; color: #991b1b; font-size: 1rem; font-weight: 800; padding: 0.5rem 1.5rem; border-radius: 99px; border: 1px solid #fecaca;">
-                    ❌ Cancelada
+                    Cancelada
                 </span>
             @endif
         </div>
@@ -54,7 +54,7 @@
             {{-- Itens da Encomenda --}}
             <div style="background: white; border-radius: var(--radius); border: 1px solid var(--border); padding: 2rem;">
                 <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0 0 1.5rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.75rem; color: var(--text);">
-                    👕 Artigos Encomendados
+                    Artigos Encomendados
                 </h3>
 
                 <div style="display: flex; flex-direction: column; gap: 1.5rem;">
@@ -125,7 +125,7 @@
             {{-- Justificação de Cancelamento se aplicável --}}
             @if($order->status === 'canceled')
                 <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); padding: 1.5rem; color: #991b1b;">
-                    <h4 style="font-weight: 800; font-size: 1.05rem; margin: 0 0 0.5rem 0;">⚠️ Motivo do Cancelamento</h4>
+                    <h4 style="font-weight: 800; font-size: 1.05rem; margin: 0 0 0.5rem 0;">Motivo do Cancelamento</h4>
                     <p style="margin: 0; font-size: 0.95rem;">
                         {{ $order->reason_for_cancellation ?: 'Nenhum motivo específico indicado pelo administrador.' }}
                     </p>
@@ -174,14 +174,13 @@
                 </div>
             </div>
 
-            {{-- Ações baseadas no Estado --}}
             @if($order->status === 'closed')
                 <div style="background: white; border-radius: var(--radius); border: 1px solid var(--border); padding: 1.5rem;">
                     <h3 style="font-weight: 800; font-size: 1.1rem; margin: 0 0 1rem 0; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: var(--text);">
                         Documentos
                     </h3>
                     <a href="{{ route('orders.receipt', $order) }}" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem; width: 100%; border-radius: 8px; font-weight: 700; text-decoration: none; text-align: center;">
-                        📄 Descarregar Recibo PDF
+                        Descarregar Recibo PDF
                     </a>
                 </div>
             @endif
@@ -190,7 +189,7 @@
             @if(Auth::user()->user_type !== 'C' && $order->status === 'pending')
                 <div style="background: #f8fafc; border-radius: var(--radius); border: 1px solid var(--border); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
                     <h3 style="font-weight: 800; font-size: 1.1rem; margin: 0; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: var(--text);">
-                        ⚡ Ações de Gestão
+                        Ações de Gestão
                     </h3>
 
                     {{-- Enviar / Fechar Encomenda (Disponível para Staff e Admin) --}}
@@ -199,7 +198,7 @@
                         @method('PATCH')
                         <input type="hidden" name="status" value="closed">
                         <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                            🚚 Marcar como Enviada
+                            Marcar como Enviada
                         </button>
                     </form>
 
@@ -218,7 +217,7 @@
                                           style="width: 100%; padding: 0.5rem; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; font-family: inherit; margin-bottom: 0.5rem; resize: vertical;"></textarea>
 
                                 <button type="submit" class="btn btn-outline" style="width: 100%; padding: 0.75rem; border-radius: 8px; font-weight: 700; color: #ef4444; border-color: #fecaca; display: flex; align-items: center; justify-content: center; gap: 0.5rem;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                                    ✕ Cancelar Encomenda
+                                    Cancelar Encomenda
                                 </button>
                             </form>
                         </div>

@@ -50,7 +50,6 @@
                             @endif
 
                             @if(Auth::user()->user_type === 'C')
-                                <a href="{{ route('customer.tshirt-images.index') }}" class="nav-link">As Minhas Imagens</a>
                                 <a href="{{ route('orders.index') }}" class="nav-link">Encomendas</a>
                             @endif
 

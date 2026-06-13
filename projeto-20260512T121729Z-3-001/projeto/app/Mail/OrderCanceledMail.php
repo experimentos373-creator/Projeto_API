@@ -4,11 +4,10 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCanceledMail extends Mailable implements ShouldQueue
+class OrderCanceledMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -28,6 +27,6 @@ class OrderCanceledMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject("Encomenda Cancelada — FunShirt #{$this->order->id}")
-                    ->view('emails.order_canceled');
+            ->view('emails.order_canceled');
     }
 }

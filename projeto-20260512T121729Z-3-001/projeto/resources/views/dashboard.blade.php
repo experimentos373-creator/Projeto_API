@@ -9,19 +9,13 @@
         <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius);">
             <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Minhas Encomendas</h3>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Consulte o histórico e estado das suas compras.</p>
-            <a href="#" class="btn btn-outline" style="width: 100%;">Ver Histórico</a>
+            <a href="{{ route('orders.index') }}" class="btn btn-outline" style="width: 100%;">Ver Histórico</a>
         </div>
         
         <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius);">
             <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Meu Perfil</h3>
             <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Gerencie seus dados e preferências de pagamento.</p>
             <a href="{{ route('profile.edit') }}" class="btn btn-outline" style="width: 100%;">Editar Perfil</a>
-        </div>
-        
-        <div style="padding: 1.5rem; border: 1px solid var(--border); border-radius: var(--radius);">
-            <h3 style="font-weight: 700; margin-bottom: 0.5rem;">Minhas Imagens</h3>
-            <p style="color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1rem;">Envie suas próprias estampas para usar nas T-Shirts.</p>
-            <a href="#" class="btn btn-outline" style="width: 100%;">Gerir Imagens</a>
         </div>
     </div>
 </div>

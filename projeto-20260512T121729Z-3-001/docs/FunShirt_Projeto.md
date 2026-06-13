@@ -138,7 +138,7 @@ Herda as capacidades do utilizador anónimo, e adicionalmente:
 |---|---|
 | Framework | **Laravel 12** ou superior |
 | Base de Dados | **SQLite** |
-| Arquitetura | Obrigatoriamente **server-side** |
+| Arquitetura | Obrigatoriamente **server-side** (não sendo permitido o uso de JavaScript ou frameworks como Vue.js ou React para a lógica da aplicação) |
 | JavaScript | Uso **residual** apenas para pequenos ajustes de interface (efeitos visuais, bibliotecas UI) |
 | Exceção JS | **Livewire** é permitido (JS gerado internamente, lógica no servidor) |
 | Pacotes extras | Permitidos (ex: Telescope, geradores PDF, gráficos) |
@@ -277,7 +277,7 @@ Herda as capacidades do utilizador anónimo, e adicionalmente:
 #### Gestão (exclusiva do Cliente)
 - CRUD completo das suas imagens (consulta, adição, atualização, remoção)
 - Upload obrigatório de ficheiros para o servidor
-- Área **independente** da gestão do catálogo
+- Área **independente** da gestão do catálogo (com recomendação de reaproveitamento da lógica de código da gestão do catálogo para esta área)
 
 > ⚠️ Administradores e funcionários **não** têm permissão para gerir ou alterar as imagens personalizadas dos clientes.
 
@@ -515,8 +515,8 @@ Regista as **encomendas** efetuadas. O carrinho mantém-se **exclusivamente na s
 | `reason_for_cancellation` | TEXT | ❌ | Justificação do administrador para anulação (só relevante em `canceled`, mas sempre opcional) |
 | `nif` | VARCHAR | ✅ | NIF de faturação (9 dígitos). Pré-preenchido do perfil, editável |
 | `address` | TEXT | ✅ | Endereço de entrega. Pré-preenchido do perfil, editável |
-| `payment_type` | VARCHAR | ❌ | Método de pagamento utilizado (`Visa` · `PayPal` · `MB WAY`) |
-| `payment_ref` | VARCHAR | ❌ | Referência de pagamento. Pré-preenchida do perfil, editável |
+| `payment_type` | VARCHAR | ✅ | Método de pagamento utilizado (`Visa` · `PayPal` · `MB WAY`) |
+| `payment_ref` | VARCHAR | ✅ | Referência de pagamento. Pré-preenchida do perfil, editável |
 | `receipt_url` | VARCHAR | ❌ | Caminho relativo para o PDF do recibo. Gerado ao transitar para `closed` |
 | `custom` | TEXT | ❌ | JSON com dados suplementares (uso opcional) |
 | `created_at` | DATETIME | — | Gerido automaticamente pelo Laravel |

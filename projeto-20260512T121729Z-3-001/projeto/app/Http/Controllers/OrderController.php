@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderCanceledMail;
+use App\Mail\OrderClosedMail;
 use App\Models\Order;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class OrderController extends Controller
 {
@@ -49,10 +53,10 @@ class OrderController extends Controller
             // Filter by Customer (Name or NIF)
             if ($request->filled('customer')) {
                 $search = $request->customer;
-                $query->where(function($q) use ($search) {
-                    $q->whereHas('customer.user', function($sq) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->whereHas('customer.user', function ($sq) use ($search) {
                         $sq->where('name', 'like', "%{$search}%");
-                    })->orWhereHas('customer', function($sq) use ($search) {
+                    })->orWhereHas('customer', function ($sq) use ($search) {
                         $sq->where('nif', 'like', "%{$search}%");
                     });
                 });
@@ -114,37 +118,37 @@ class OrderController extends Controller
 
             // Trigger cancellation email (Integration G6)
             try {
-                if (class_exists(\App\Mail\OrderCanceledMail::class)) {
-                    Mail::to($order->customer->user)->send(new \App\Mail\OrderCanceledMail($order));
+                if (class_exists(OrderCanceledMail::class)) {
+                    Mail::to($order->customer->user)->send(new OrderCanceledMail($order));
                 }
             } catch (\Exception $e) {
-                logger()->error('Falha ao enviar e-mail de cancelamento: ' . $e->getMessage());
+                logger()->error('Falha ao enviar e-mail de cancelamento: '.$e->getMessage());
             }
         } elseif ($request->status === 'closed') {
             // 1. Generate and save PDF receipt before sending email
             try {
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.receipt', compact('order'));
+                $pdf = Pdf::loadView('pdf.receipt', compact('order'));
                 $pdfDirectory = 'pdf_receipts';
-                
-                if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($pdfDirectory)) {
-                    \Illuminate\Support\Facades\Storage::disk('local')->makeDirectory($pdfDirectory);
+
+                if (! Storage::disk('local')->exists($pdfDirectory)) {
+                    Storage::disk('local')->makeDirectory($pdfDirectory);
                 }
-                
-                $pdfPath = $pdfDirectory . '/recibo-' . $order->id . '.pdf';
-                \Illuminate\Support\Facades\Storage::disk('local')->put($pdfPath, $pdf->output());
+
+                $pdfPath = $pdfDirectory.'/recibo-'.$order->id.'.pdf';
+                Storage::disk('local')->put($pdfPath, $pdf->output());
 
                 $order->receipt_url = $pdfPath;
             } catch (\Exception $e) {
-                logger()->error('Falha ao gerar recibo PDF: ' . $e->getMessage());
+                logger()->error('Falha ao gerar recibo PDF: '.$e->getMessage());
             }
 
             // 2. Trigger closed/shipped email with invoice (Integration G6)
             try {
-                if (class_exists(\App\Mail\OrderClosedMail::class)) {
-                    Mail::to($order->customer->user)->send(new \App\Mail\OrderClosedMail($order));
+                if (class_exists(OrderClosedMail::class)) {
+                    Mail::to($order->customer->user)->send(new OrderClosedMail($order));
                 }
             } catch (\Exception $e) {
-                logger()->error('Falha ao enviar e-mail de encerramento de encomenda: ' . $e->getMessage());
+                logger()->error('Falha ao enviar e-mail de encerramento de encomenda: '.$e->getMessage());
             }
         }
 
@@ -171,33 +175,34 @@ class OrderController extends Controller
             return back()->with('error', 'O recibo apenas está disponível para encomendas enviadas.');
         }
 
-        $pdfPath = $order->receipt_url ?? ('pdf_receipts/recibo-' . $order->id . '.pdf');
-        if ($pdfPath && !str_starts_with($pdfPath, 'pdf_receipts/')) {
-            $pdfPath = 'pdf_receipts/' . $pdfPath;
+        $pdfPath = $order->receipt_url ?? ('pdf_receipts/recibo-'.$order->id.'.pdf');
+        if ($pdfPath && ! str_starts_with($pdfPath, 'pdf_receipts/')) {
+            $pdfPath = 'pdf_receipts/'.$pdfPath;
         }
 
-        if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($pdfPath)) {
+        if (! Storage::disk('local')->exists($pdfPath)) {
             // Robust fallback: generate and save PDF if it does not exist on disk
             try {
-                $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.receipt', compact('order'));
+                $pdf = Pdf::loadView('pdf.receipt', compact('order'));
                 $pdfDirectory = 'pdf_receipts';
-                
-                if (!\Illuminate\Support\Facades\Storage::disk('local')->exists($pdfDirectory)) {
-                    \Illuminate\Support\Facades\Storage::disk('local')->makeDirectory($pdfDirectory);
+
+                if (! Storage::disk('local')->exists($pdfDirectory)) {
+                    Storage::disk('local')->makeDirectory($pdfDirectory);
                 }
-                
-                \Illuminate\Support\Facades\Storage::disk('local')->put($pdfPath, $pdf->output());
-                
+
+                Storage::disk('local')->put($pdfPath, $pdf->output());
+
                 if (empty($order->receipt_url)) {
                     $order->receipt_url = $pdfPath;
                     $order->save();
                 }
             } catch (\Exception $e) {
-                logger()->error('Falha ao regenerar recibo PDF no download: ' . $e->getMessage());
+                logger()->error('Falha ao regenerar recibo PDF no download: '.$e->getMessage());
+
                 return back()->with('error', 'Erro ao gerar o recibo PDF.');
             }
         }
 
-        return \Illuminate\Support\Facades\Storage::disk('local')->download($pdfPath, 'recibo-encomenda-' . $order->id . '.pdf');
+        return response()->download(storage_path('app/private/'.$pdfPath), 'recibo-encomenda-'.$order->id.'.pdf');
     }
 }

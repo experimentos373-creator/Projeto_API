@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Price;
-use App\Models\Tshirt_image;
 use App\Models\Category;
 use App\Models\Color;
+use App\Models\Price;
+use App\Models\Tshirt_image;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TshirtimageController extends Controller
 {
-     public function shop(Request $request)
+    public function shop(Request $request)
     {
         $filterByCategory = $request->input('category');
         $filterByName = $request->input('name');
@@ -26,12 +26,12 @@ class TshirtimageController extends Controller
 
         if ($filterByName) {
             $tshirt_images_Query->where(function ($query) use ($filterByName) {
-                $query->where('name', 'like', '%' . $filterByName . '%')
-                      ->orWhere('description', 'like', '%' . $filterByName . '%');
+                $query->where('name', 'like', '%'.$filterByName.'%')
+                    ->orWhere('description', 'like', '%'.$filterByName.'%');
             });
         }
 
-        $tshirt_images = $tshirt_images_Query->paginate(8);
+        $tshirt_images = $tshirt_images_Query->with('category')->paginate(8);
         $price = Price::first();
 
         return view('tshirt_images.shop', compact(
@@ -42,6 +42,7 @@ class TshirtimageController extends Controller
             'categories'
         ));
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -78,7 +79,7 @@ class TshirtimageController extends Controller
 
         $colors = Color::all();
         $price = Price::first();
-        
+
         // Tamanhos padrão (conforme enunciado)
         $sizes = ['XS', 'S', 'M', 'L', 'XL'];
 

@@ -4,12 +4,11 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class OrderClosedMail extends Mailable implements ShouldQueue
+class OrderClosedMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -29,13 +28,13 @@ class OrderClosedMail extends Mailable implements ShouldQueue
     public function build()
     {
         $mail = $this->subject("Encomenda Enviada — FunShirt #{$this->order->id}")
-                     ->view('emails.order_closed');
+            ->view('emails.order_closed');
 
-        $pdfPath = $this->order->receipt_url ?? 'private/pdf_receipts/recibo-' . $this->order->id . '.pdf';
+        $pdfPath = $this->order->receipt_url ?? 'private/pdf_receipts/recibo-'.$this->order->id.'.pdf';
 
         if (Storage::disk('local')->exists($pdfPath)) {
             $mail->attach(Storage::disk('local')->path($pdfPath), [
-                'as' => 'recibo-encomenda-' . $this->order->id . '.pdf',
+                'as' => 'recibo-encomenda-'.$this->order->id.'.pdf',
                 'mime' => 'application/pdf',
             ]);
         }
